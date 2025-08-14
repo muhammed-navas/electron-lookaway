@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LookAway Overlay</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div id="overlay">
+    <div class="countdown-circle">
+      <svg class="progress-ring" width="200" height="200">
+        <circle
+          class="progress-ring-circle-bg"
+          stroke="#e0e0e0"
+          stroke-width="8"
+          fill="transparent"
+          r="90"
+          cx="100"
+          cy="100"
+        />
+        <circle
+          class="progress-ring-circle"
+          stroke="#667eea"
+          stroke-width="8"
+          fill="transparent"
+          r="90"
+          cx="100"
+          cy="100"
+          stroke-dasharray="565.48"
+          stroke-dashoffset="565.48"
+        />
+      </svg>
+      <div class="countdown-text">
+        <div id="time-display">--:--</div>
+        <div class="break-label">Break Time</div>
+      </div>
+    </div>
+  </div>
+  <script src="./overlay.js"></script>
+</body>
+</html> 

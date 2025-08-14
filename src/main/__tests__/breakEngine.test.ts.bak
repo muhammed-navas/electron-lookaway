@@ -1,0 +1,124 @@
+import { BreakEngine } from '../breakEngine';
+import { SettingsManager } from '../settings';
+
+// Mock SettingsManager
+const mockSettingsManager = {
+  getBreakSettings: () => ({
+    shortBreakInterval: 20,
+    shortBreakDuration: 20,
+    longBreakInterval: 4,
+    longBreakDuration: 5,
+    headsUpTime: 10,
+    skipPolicy: 'balanced' as const,
+    soundEnabled: true,
+    notificationsEnabled: true,
+    overlayEnabled: true,
+  }),
+};
+
+describe('BreakEngine', () => {
+  let breakEngine: BreakEngine;
+
+  beforeEach(() => {
+    mockSettingsManager = {
+      getBreakSettings: jest.fn().mockReturnValue({
+        shortBreakInterval: 20,
+        shortBreakDuration: 20,
+        longBreakInterval: 4,
+        longBreakDuration: 5,
+        headsUpTime: 10,
+        skipPolicy: 'balanced',
+        soundEnabled: true,
+        notificationsEnabled: true,
+        overlayEnabled: true,
+      }),
+    } as any;
+
+    breakEngine = new BreakEngine(mockSettingsManager);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('initialization', () => {
+    it('should initialize with idle state', () => {
+      const status = breakEngine.getStatus();
+      expect(status.state).toBe('idle');
+      expect(status.isPaused).toBe(false);
+    });
+  });
+
+  describe('start/pause/resume', () => {
+    it('should start the break engine', () => {
+      const startSpy = jest.spyOn(breakEngine, 'emit');
+      breakEngine.start();
+      
+      expect(startSpy).toHaveBeenCalledWith('resume');
+    });
+
+    it('should pause the break engine', () => {
+      breakEngine.start();
+      const pauseSpy = jest.spyOn(breakEngine, 'emit');
+      
+      breakEngine.pause();
+      
+      expect(pauseSpy).toHaveBeenCalledWith('pause');
+      const status = breakEngine.getStatus();
+      expect(status.isPaused).toBe(true);
+    });
+
+    it('should resume the break engine', () => {
+      breakEngine.start();
+      breakEngine.pause();
+      const resumeSpy = jest.spyOn(breakEngine, 'emit');
+      
+      breakEngine.resume();
+      
+      expect(resumeSpy).toHaveBeenCalledWith('resume');
+    });
+  });
+
+  describe('skip functionality', () => {
+    it('should skip current break', () => {
+      const skipSpy = jest.spyOn(breakEngine, 'emit');
+      
+      breakEngine.skip();
+      
+      expect(skipSpy).toHaveBeenCalledWith('skip');
+    });
+  });
+
+  describe('delay functionality', () => {
+    it('should delay break by specified minutes', () => {
+      const delaySpy = jest.spyOn(breakEngine, 'emit');
+      
+      breakEngine.delay(5);
+      
+      expect(delaySpy).toHaveBeenCalledWith('delay', { minutes: 5 });
+    });
+  });
+
+  describe('settings update', () => {
+    it('should update settings', () => {
+      const newSettings = {
+        shortBreakInterval: 30,
+        shortBreakDuration: 30,
+        longBreakInterval: 3,
+        longBreakDuration: 10,
+        headsUpTime: 15,
+        skipPolicy: 'casual' as const,
+        soundEnabled: false,
+        notificationsEnabled: true,
+        overlayEnabled: true,
+      };
+      
+      mockSettingsManager.getBreakSettings.mockReturnValue(newSettings);
+      
+      breakEngine.updateSettings();
+      
+      // Verify that settings were updated
+      expect(mockSettingsManager.getBreakSettings).toHaveBeenCalled();
+    });
+  });
+}); 
